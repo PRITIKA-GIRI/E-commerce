@@ -13,8 +13,9 @@ if(mysqli_num_rows($select_cart) > 0) {
     }
 }
 
-$tax_amt = $grand_total * 0.13; // 13% tax
-$total_amount = $grand_total + $tax_amt;
+// Delivery charge instead of tax
+$delivery_charge = 150; // Flat delivery charge
+$total_amount = $grand_total + $delivery_charge;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,7 +40,7 @@ $total_amount = $grand_total + $tax_amt;
         <div class="payment-card">
             <div class="payment-branding">
                 <img src="uploaded_img/esewa.jpg" alt="eSewa" class="esewa-logo">
-                <h1>Payment Authorization</h1>
+                <h2>Payment Authorization</h2>
                 <p>You'll be redirected to eSewa to complete your payment securely</p>
             </div>
             
@@ -51,8 +52,8 @@ $total_amount = $grand_total + $tax_amt;
                         <span>Rs. <?php echo number_format($grand_total, 2); ?></span>
                     </div>
                     <div class="summary-row">
-                        <span>Tax (13%):</span>
-                        <span>Rs. <?php echo number_format($tax_amt, 2); ?></span>
+                        <span>Delivery Charge:</span>
+                        <span>Rs. <?php echo number_format($delivery_charge, 2); ?></span>
                     </div>
                     <div class="summary-row total">
                         <span>Total Amount:</span>
@@ -64,12 +65,13 @@ $total_amount = $grand_total + $tax_amt;
             <form action="<?php echo $epay_url; ?>" method="POST" id="esewaForm" class="payment-form">
                 <!-- Hidden required fields -->
                 <input type="hidden" id="amount" name="amount" value="<?php echo $grand_total; ?>">
-                <input type="hidden" id="tax_amount" name="tax_amount" value="<?php echo $tax_amt; ?>">
+                <input type="hidden" id="product_delivery_charge" name="product_delivery_charge" value="<?php echo $delivery_charge; ?>">
+                <input type="hidden" id="product_service_charge" name="product_service_charge" value="0">
                 <input type="hidden" id="total_amount" name="total_amount" value="<?php echo $total_amount; ?>">
                 <input type="hidden" id="transaction_uuid" name="transaction_uuid" required>
                 <input type="hidden" id="product_code" name="product_code" value="EPAYTEST">
-                <input type="hidden" id="product_service_charge" name="product_service_charge" value="0">
-                <input type="hidden" id="product_delivery_charge" name="product_delivery_charge" value="0">
+                <input type="hidden" id="tax_amount" name="tax_amount" value="0">
+
                 <input type="hidden" id="success_url" name="success_url" value="<?php echo $success_url; ?>">
                 <input type="hidden" id="failure_url" name="failure_url" value="<?php echo $failure_url; ?>">
                 <input type="hidden" id="signed_field_names" name="signed_field_names" 
@@ -81,22 +83,8 @@ $total_amount = $grand_total + $tax_amt;
                         <i class="fas fa-lock"></i>
                         <span>Pay Rs. <?php echo number_format($total_amount, 2); ?></span>
                     </span>
-                    
                 </button>
             </form>
-            
-            <div class="payment-security">
-                <div class="security-features">
-                    <div class="security-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>256-bit SSL Encryption</span>
-                    </div>
-                    <div class="security-item">
-                        <i class="fas fa-user-shield"></i>
-                        <span>PCI DSS Compliant</span>
-                    </div>
-                </div>
-            </div>
             
             <div class="payment-footer">
                 <a href="cart.php" class="back-link"><i class="fas fa-arrow-left"></i> Return to cart</a>
@@ -113,15 +101,13 @@ $total_amount = $grand_total + $tax_amt;
         
         // Form submission handler
         document.getElementById('esewaForm').addEventListener('submit', function(e) {
-            // Add loading state
             const btn = this.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         });
     });
-    
+
     function generateSignature() {
-        // Generate transaction ID (format: YYMMDD-HHMMSS)
         const now = new Date();
         const transactionId = now.toISOString().slice(2, 10).replace(/-/g, '') + '-' + 
                              now.getHours().toString().padStart(2, '0') + 
@@ -129,12 +115,11 @@ $total_amount = $grand_total + $tax_amt;
                              now.getSeconds().toString().padStart(2, '0');
         
         document.getElementById("transaction_uuid").value = transactionId;
-        
-        // Generate signature
+
         const totalAmount = document.getElementById("total_amount").value;
         const productCode = document.getElementById("product_code").value;
         const secret = "<?php echo $secret_key; ?>";
-        
+
         const signatureData = `total_amount=${totalAmount},transaction_uuid=${transactionId},product_code=${productCode}`;
         const hash = CryptoJS.HmacSHA256(signatureData, secret);
         const signature = CryptoJS.enc.Base64.stringify(hash);

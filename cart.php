@@ -27,33 +27,13 @@ if(isset($_GET['delete_all'])){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shopping Cart - Sole Mates</title>
+    <title>Shopping Cart - SoleMates </title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-<header class="header">
-    <div class="logo">ShoeStore</div>
-
-    <nav>
-        <a href="#">Home</a>
-        <a href="#">Men</a>
-        <a href="#">Women</a>
-        <a href="#">New Arrivals</a>
-        <a href="#">Contact</a>
-    </nav>
-
-    <div class="header-actions">
-        <i class="fas fa-search"></i>
-        <i class="fas fa-shopping-cart"></i>
-        <i class="fas fa-user-circle"></i>
-    </div>
-</header>
-
 </head>
 <body>
-    <div class="header">Sole Mates</div>
+    <div class="header">SoleMates </div>
     
     <div class="container">
         <div class="action-links">

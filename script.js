@@ -31,4 +31,4 @@ function confirmDeleteAll() {
 // Confirm before removing item from cart/wishlist
 function confirmRemoveItem() {
     return confirm('Are you sure you want to remove this item?');
-}
+} 
