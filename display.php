@@ -33,6 +33,37 @@ if(isset($_POST['add_to_cart'])){
                               VALUES('$product_Name', '$product_Price', '$product_Image', '$product_Quantity')");
         $message[] = "Product added to cart";
     }
+            // Inside the add_to_cart block (around line 14)
+        if(isset($_POST['add_to_cart'])){
+            // ... existing code ...
+            track_add_to_cart([
+                'id' => $fetch_product['id'],
+                'name' => $product_Name,
+                'price' => $product_Price,
+                'quantity' => $product_Quantity
+            ]);
+        }
+
+        // Inside the add_to_wishlist block (around line 25)
+        if(isset($_POST['add_to_wishlist'])){
+            // ... existing code ...
+            track_event('add_to_wishlist', [
+                'item_id' => $fetch_product['id'],
+                'item_name' => $product_Name,
+                'price' => $product_Price
+            ]);
+        }
+
+                echo "<script>
+            gtag('event', 'add_to_cart', {
+                items: [{
+                    id: '{$fetch_product['id']}',
+                    name: '{$fetch_product['name']}',
+                    price: {$fetch_product['price']},
+                    quantity: 1
+                }]
+            });
+            </script>";
 }
 ?>
 
@@ -90,8 +121,27 @@ if(isset($_POST['add_to_cart'])){
                             </div>
                         </div>
                         
-                        <h3><?php echo $fetch_product['name']; ?></h3>
-                        <div class="price">Rs. <?php echo $fetch_product['price']; ?></div>
+                        <!-- Inside the product loop in display.php -->
+                            <h3><?php echo $fetch_product['name']; ?></h3>
+                            <div class="price">Rs. <?php echo $fetch_product['price']; ?></div>
+                            <div class="category">
+                            <?php
+                            $category_id = $fetch_product['category_id'] ?? null;
+                            
+                            if ($category_id) {
+                                $category_query = mysqli_query($conn, "SELECT name FROM categories WHERE id = '$category_id'");
+                                
+                                if ($category_query && mysqli_num_rows($category_query) > 0) {
+                                    $category_data = mysqli_fetch_assoc($category_query);
+                                    echo "Category: " . htmlspecialchars($category_data['name']);
+                                } else {
+                                    echo "Category: Invalid (ID: $category_id)"; // Debug output
+                                }
+                            } else {
+                                echo "Category: Not assigned";
+                            }
+                            ?>
+                        </div>
                         
                         <input type="hidden" name="product_name" value="<?php echo $fetch_product['name']; ?>">
                         <input type="hidden" name="product_price" value="<?php echo $fetch_product['price']; ?>">
@@ -119,4 +169,4 @@ if(isset($_POST['add_to_cart'])){
     
     <script src="script.js"></script>
 </body>
-</html>w
+</html>
